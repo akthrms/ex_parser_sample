@@ -1,14 +1,15 @@
 defmodule ExParserSample do
-  @type parser :: (any -> any)
-  @type result :: []
+  @moduledoc false
 
-  @spec item(binary) :: result
   def item(<<>>), do: []
 
   def item(<<head::utf8, tail::binary>>), do: [{<<head>>, tail}]
 
-  @spec failure(any) :: result
   def failure(_), do: []
+
+  def parse(parser), do: fn input -> parser.(input) end
+
+  def return(v), do: fn input -> [{v, input}] end
 
   @doc """
       iex> import ExParserSample
@@ -25,13 +26,6 @@ defmodule ExParserSample do
       iex> parser.("123def456")
       []
   """
-  @spec parse(any) :: parser
-  def parse(parser), do: fn input -> parser.(input) end
-
-  @spec return(any) :: parser
-  def return(v), do: fn input -> [{v, input}] end
-
-  @spec bind(any, any) :: parser
   def bind(parser, f) do
     fn input ->
       case parse(parser).(input) do
@@ -41,7 +35,6 @@ defmodule ExParserSample do
     end
   end
 
-  @spec satisfies(any) :: parser
   def satisfies(predicate) do
     bind(&item/1, fn v ->
       if predicate.(v) do
@@ -52,10 +45,8 @@ defmodule ExParserSample do
     end)
   end
 
-  @spec char(any) :: parser
   def char(c), do: satisfies(&(c == &1))
 
-  @spec string(binary) :: parser
   def string(<<>>), do: return([])
 
   def string(<<head::utf8, tail::binary>>) do
