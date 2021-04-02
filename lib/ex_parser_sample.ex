@@ -9,6 +9,15 @@ defmodule ExParserSample do
 
   def parse(parser), do: fn input -> parser.(input) end
 
+  def concat(parser1, parser2) do
+    fn input ->
+      case parse(parser1).(input) do
+        [] -> parse(parser2).(input)
+        [{v, out}] -> [{v, out}]
+      end
+    end
+  end
+
   def return(v), do: fn input -> [{v, input}] end
 
   @doc """
