@@ -59,10 +59,8 @@ defmodule ExParserSample do
   def string(<<>>), do: return([])
 
   def string(<<head::utf8, tail::binary>>) do
-    char(<<head>>)
-    |> bind(fn _ ->
-      string(tail)
-      |> bind(fn _ ->
+    bind(char(<<head>>), fn _ ->
+      bind(string(tail), fn _ ->
         return(<<head>> <> tail)
       end)
     end)
