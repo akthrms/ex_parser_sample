@@ -56,12 +56,39 @@ defmodule ExParserSample do
 
   def char(c), do: satisfies(&(c == &1))
 
-  def string(<<>>), do: return([])
+  def string(<<>>), do: return("")
 
   def string(<<head::utf8, tail::binary>>) do
     bind(char(<<head>>), fn _ ->
       bind(string(tail), fn _ ->
         return(<<head>> <> tail)
+      end)
+    end)
+  end
+
+  def many(parser) do
+    concat(plus(parser), return(""))
+  end
+
+  def plus(parser) do
+    bind(parser, fn v ->
+      bind(many(parser), fn vs ->
+        return(v <> vs)
+      end)
+    end)
+  end
+
+  def space do
+    parser = many(satisfies(&(" " == &1)))
+    bind(parser, fn _ -> return("") end)
+  end
+
+  def token(parser) do
+    bind(&space/0, fn _ ->
+      bind(parser, fn v ->
+        bind(&space/0, fn _ ->
+          return(v)
+        end)
       end)
     end)
   end
