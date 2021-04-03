@@ -66,9 +66,7 @@ defmodule ExParserSample do
     end)
   end
 
-  def many(parser) do
-    concat(plus(parser), return(""))
-  end
+  def many(parser), do: concat(plus(parser), return(""))
 
   def plus(parser) do
     bind(parser, fn v ->
